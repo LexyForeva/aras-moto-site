@@ -11,6 +11,14 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Statik dosyaları servis et - KATALOG KLASÖRÜ
+app.use(express.static(path.join(__dirname, 'katalog')));
+
+// Ana sayfa route'u
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'katalog', 'index.html'));
+});
+
 // Rate limiting - Brute force koruması
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 dakika
@@ -48,9 +56,11 @@ const storage = multer.diskStorage({
             .replace(/ö/g, 'o')
             .replace(/ç/g, 'c')
             .replace(/[^a-z0-9]/g, '-');
+        
         cb(null, nameWithoutExt + '-' + uniqueSuffix + ext);
     }
 });
+
 
 const upload = multer({
     storage: storage,
