@@ -11,13 +11,12 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Statik dosyaları servis et - KATALOG KLASÖRÜ
-app.use(express.static(path.join(__dirname, '..', 'katalog')));
+// Statik dosyaları servis et
+app.use(express.static(__dirname));
 
 // Ana sayfa route'u
 app.get('/', (req, res) => {
-    const indexPath = path.join(__dirname, '..', 'katalog', 'index.html');
-    res.sendFile(indexPath);
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Rate limiting - Brute force koruması
@@ -39,7 +38,7 @@ const apiLimiter = rateLimit({
 // Multer konfigürasyonu - Dosya yükleme
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const uploadDir = path.join(__dirname, 'katalog', 'uploads');
+        const uploadDir = path.join(__dirname, 'uploads');
         // Klasör yoksa oluştur
         require('fs').mkdirSync(uploadDir, { recursive: true });
         cb(null, uploadDir);
@@ -57,11 +56,9 @@ const storage = multer.diskStorage({
             .replace(/ö/g, 'o')
             .replace(/ç/g, 'c')
             .replace(/[^a-z0-9]/g, '-');
-        
         cb(null, nameWithoutExt + '-' + uniqueSuffix + ext);
     }
 });
-
 
 const upload = multer({
     storage: storage,
@@ -97,29 +94,19 @@ app.use(session({
     }
 }));
 
-// Static files
-app.use(express.static('katalog'));
-
 // API rate limiting
 app.use('/api', apiLimiter);
 
 // Admin credentials - .env dosyasından okunuyor
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'arasadmin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'aras2024!';
-
-// Şifreyi hash'le (ilk çalıştırmada)
-let ADMIN_PASSWORD_HASH;
-bcrypt.hash(ADMIN_PASSWORD, 10).then(hash => {
-    ADMIN_PASSWORD_HASH = hash;
-    console.log('🔐 Admin şifresi güvenli şekilde hash\'lendi');
-});
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'aras202568';
 
 // Email transporter (Gmail kullanarak)
 const emailTransporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER, // Gmail adresiniz
-        pass: process.env.EMAIL_PASS  // Gmail uygulama şifresi
+        user: process.env.EMAIL_USER || 'burakceza68@gmail.com',
+        pass: process.env.EMAIL_PASS || 'nootytkrpbqdggjh'
     }
 });
 
@@ -167,7 +154,7 @@ async function send2FACode(email, code) {
 }
 
 // Products JSON path
-const PRODUCTS_FILE = path.join(__dirname, 'katalog', 'products.json');
+const PRODUCTS_FILE = path.join(__dirname, 'products.json');
 
 // Auth middleware
 function requireAuth(req, res, next) {
@@ -190,13 +177,13 @@ app.post('/api/admin/login', loginLimiter, async (req, res) => {
             return res.status(401).json({ success: false, message: 'Kullanıcı adı veya şifre hatalı' });
         }
         
-        // Şifre kontrolü (hash karşılaştırması)
-        const isPasswordValid = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
+        // Şifre kontrolü (direkt karşılaştırma)
+        const isPasswordValid = password === ADMIN_PASSWORD;
         
         if (isPasswordValid) {
             // 2FA kodu oluştur ve gönder
             const code = generate2FACode();
-            const email = process.env.ADMIN_EMAIL;
+            const email = process.env.ADMIN_EMAIL || 'burakceza68@gmail.com';
             
             // Kodu 5 dakika geçerli olacak şekilde sakla
             twoFactorCodes.set(username, {
@@ -450,7 +437,7 @@ app.delete('/api/products/:id', requireAuth, async (req, res) => {
 
 // Admin panel route
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'katalog', 'admin.html'));
+    res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
 // Start server
