@@ -440,22 +440,27 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('🚀 Aras Reklam Moto Aksesuar - Server Başlatıldı');
-    console.log('═══════════════════════════════════════════════════════');
-    console.log(`📍 Ana Sayfa: http://localhost:${PORT}`);
-    console.log(`📊 Admin Panel: http://localhost:${PORT}/admin`);
-    console.log(`👤 Kullanıcı: ${ADMIN_USERNAME}`);
-    console.log(`🔐 Şifre: ${ADMIN_PASSWORD}`);
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('🛡️  Güvenlik Özellikleri:');
-    console.log('   ✅ Şifre hash\'leme (bcrypt)');
-    console.log('   ✅ Rate limiting (brute force koruması)');
-    console.log('   ✅ Session güvenliği');
-    console.log('   ✅ XSS ve CSRF koruması');
-    console.log('═══════════════════════════════════════════════════════');
-    console.log(`⏰ Başlatma Zamanı: ${new Date().toLocaleString('tr-TR')}`);
-    console.log('═══════════════════════════════════════════════════════\n');
-});
+// Start server (only if not in Vercel)
+if (process.env.VERCEL !== '1') {
+    app.listen(PORT, () => {
+        console.log('═══════════════════════════════════════════════════════');
+        console.log('🚀 Aras Reklam Moto Aksesuar - Server Başlatıldı');
+        console.log('═══════════════════════════════════════════════════════');
+        console.log(`📍 Ana Sayfa: http://localhost:${PORT}`);
+        console.log(`📊 Admin Panel: http://localhost:${PORT}/admin`);
+        console.log(`👤 Kullanıcı: ${ADMIN_USERNAME}`);
+        console.log(`🔐 Şifre: ${ADMIN_PASSWORD}`);
+        console.log('═══════════════════════════════════════════════════════');
+        console.log('🛡️  Güvenlik Özellikleri:');
+        console.log('   ✅ Şifre hash\'leme (bcrypt)');
+        console.log('   ✅ Rate limiting (brute force koruması)');
+        console.log('   ✅ Session güvenliği');
+        console.log('   ✅ XSS ve CSRF koruması');
+        console.log('═══════════════════════════════════════════════════════');
+        console.log(`⏰ Başlatma Zamanı: ${new Date().toLocaleString('tr-TR')}`);
+        console.log('═══════════════════════════════════════════════════════\n');
+    });
+}
+
+// Export for Vercel
+module.exports = app;
