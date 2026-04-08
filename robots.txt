@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: https://www.arasreklam.com/sitemap.xml
+
+# Google Bot
+User-agent: Googlebot
+Allow: /
+Disallow: /admin
+
+# Bing Bot
+User-agent: Bingbot
+Allow: /
+Disallow: /admin
